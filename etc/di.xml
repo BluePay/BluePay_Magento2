@@ -1,0 +1,304 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+	
+	<!-- Payment Method Facade configuration -->
+	<virtualType name="FiservBluePayFacade" type="Magento\Payment\Model\Method\Adapter">
+		<arguments>
+			<argument name="code" xsi:type="const">Fiserv\Payments\Model\Config\Bluepay\ConfigProvider::CODE</argument>
+			<argument name="formBlockType" xsi:type="string">Fiserv\Payments\Block\Bluepay\Form</argument>
+			<argument name="infoBlockType" xsi:type="string">Fiserv\Payments\Block\Bluepay\Info</argument>
+			<argument name="valueHandlerPool" xsi:type="object">FiservBluepayValueHandlerPool</argument>
+			<argument name="validatorPool" xsi:type="object">FiservBluepayValidatorPool</argument>
+			<argument name="commandPool" xsi:type="object">FiservBluepayCommandPool</argument>
+		</arguments>
+	</virtualType>
+
+	<!-- Vault Configuration -->
+	<virtualType name="FiservBluepayVaultPaymentConfig" type="Magento\Payment\Gateway\Config\Config">
+		<arguments>
+			<argument name="methodCode" xsi:type="const">Fiserv\Payments\Model\Config\Bluepay\ConfigProvider::VAULT_CODE</argument>
+		</arguments>
+	</virtualType>
+	
+	<virtualType name="FiservBluepayVaultPaymentValueHandler" type="VaultPaymentDefaultValueHandler">
+		<arguments>
+			<argument name="configInterface" xsi:type="object">FiservBluepayVaultPaymentConfig</argument>
+		</arguments>
+	</virtualType>
+	
+	<virtualType name="FiservBluepayPaymentValueHandlerPool" type="VaultPaymentValueHandlerPool">
+		<arguments>
+			<argument name="handlers" xsi:type="array">
+				<item name="default" xsi:type="string">FiservBluepayVaultPaymentValueHandler</item>
+			</argument>
+		</arguments>
+	</virtualType>
+
+	<virtualType name="FiservBluepayVaultFacade" type="Magento\Vault\Model\Method\Vault">
+		<arguments>
+			<argument name="config" xsi:type="object">FiservBluepayVaultPaymentConfig</argument>
+			<argument name="valueHandlerPool" xsi:type="object">FiservBluepayPaymentValueHandlerPool</argument>
+			<argument name="vaultProvider" xsi:type="object">FiservBluePayFacade</argument>
+			<argument name="code" xsi:type="const">Fiserv\Payments\Model\Config\Bluepay\ConfigProvider::VAULT_CODE</argument>
+		</arguments>
+	</virtualType>
+
+	<!-- Add ACH Token Type to Token Factory Interface -->
+	<preference for="Magento\Vault\Api\Data\PaymentTokenFactoryInterface" type="Fiserv\Payments\Model\PaymentTokenFactory" />
+
+
+	<!-- Config Handlers -->
+	<type name="Fiserv\Payments\Gateway\Response\Bluepay\VaultDetailsHandler">
+		<arguments>
+			<argument name="paymentTokenFactory" xsi:type="object">Magento\Vault\Api\Data\PaymentTokenFactoryInterface</argument>
+		</arguments>
+	</type>
+	<virtualType name="FiservBluepayValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+		<arguments>
+			<argument name="handlers" xsi:type="array">
+				<item name="default" xsi:type="string">FiservBluepayValueHandler</item>
+				<item name="can_void" xsi:type="string">Fiserv\Payments\Gateway\Config\CanVoidHandler</item>
+				<item name="can_refund" xsi:type="string">Fiserv\Payments\Gateway\Config\CanRefundHandler</item>
+<!-- 				<item name="can_cancel" xsi:type="string">Fiserv\Payments\Gateway\Config\CanCancelHandler</item>
+ -->			</argument>
+		</arguments>
+	</virtualType>
+	<virtualType name="FiservBluepayValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+		<arguments>
+			<argument name="configInterface" xsi:type="object">Fiserv\Payments\Gateway\Config\Bluepay\Config</argument>
+		</arguments>
+	</virtualType>
+
+
+	<virtualType name="FiservBluepayCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+		<arguments>
+			<argument name="config" xsi:type="object">Fiserv\Payments\Gateway\Config\Bluepay\Config</argument>
+		</arguments>
+	</virtualType>
+	<virtualType name="FiservBluepayValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+		<arguments>
+			<argument name="validators" xsi:type="array">
+				<item name="country" xsi:type="string">FiservBluepayCountryValidator</item>
+			</argument>
+		</arguments>
+	</virtualType>
+
+	<!-- Command Pools -->
+	<virtualType name="FiservBluepayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+		<arguments>
+			<argument name="commands" xsi:type="array">
+				<item name="authorize" xsi:type="string">FiservBluepayAuthorizeCommand</item>
+				<item name="capture" xsi:type="string">FiservBluepayCaptureCommand</item>
+				<item name="sale" xsi:type="string">FiservBluepaySaleCommand</item>
+				<item name="settle" xsi:type="string">FiservBluepaySettleCommand</item>
+				<item name="vault_authorize" xsi:type="string">FiservBluepayVaultAuthorizeCommand</item>
+				<item name="vault_sale" xsi:type="string">FiservBluepayVaultSaleCommand</item>
+				<item name="refund" xsi:type="string">FiservBluepayRefundCommand</item>
+				<item name="void" xsi:type="string">FiservBluepayVoidCommand</item>
+				<item name="cancel" xsi:type="string">FiservBluepayVoidCommand</item>
+			</argument>
+		</arguments>
+	</virtualType>
+
+	<!-- Vault Command Managers -->
+	<virtualType name="FiservBluepayCommandManager" type="Magento\Payment\Gateway\Command\CommandManager">
+		<arguments>
+			<argument name="commandPool" xsi:type="object">FiservBluepayCommandPool</argument>
+		</arguments>
+	</virtualType>
+
+	<type name="Magento\Payment\Gateway\Command\CommandManagerPool">
+		<arguments>
+			<argument name="executors" xsi:type="array">
+				<item name="fiserv_bluepay" xsi:type="string">FiservBluepayCommandManager</item>
+			</argument>
+		</arguments>
+	</type>
+
+	<virtualType name="FiservBluepayAuthorizeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+		<arguments>
+			<argument name="requestBuilder" xsi:type="object">FiservBluepayAuthorizeRequest</argument>
+			<argument name="transferFactory" xsi:type="object">Fiserv\Payments\Gateway\Http\Bluepay\TransferFactory</argument>
+			<argument name="client" xsi:type="object">Fiserv\Payments\Gateway\Http\Bluepay\Client\TransactionAuth</argument>
+			<argument name="handler" xsi:type="object">FiservBluepayAuthorizeHandler</argument>
+			<argument name="validator" xsi:type="object">Fiserv\Payments\Gateway\Validator\Bluepay\TransactionResponseValidator</argument>
+			<argument name="errorMessageMapper" xsi:type="object">Fiserv\Payments\Gateway\ErrorMapper\Bluepay\VirtualErrorMessageMapper</argument>
+		</arguments>
+	</virtualType>
+
+	<virtualType name="FiservBluepayCaptureCommand" type="Fiserv\Payments\Gateway\Command\Bluepay\CaptureStrategyCommand">
+		<arguments>
+			<argument name="commandPool" xsi:type="object">FiservBluepayCommandPool</argument>
+		</arguments>
+	</virtualType>
+
+	<virtualType name="FiservBluepaySaleCommand" type="FiservBluepayAuthorizeCommand">
+		<arguments>
+			<argument name="client" xsi:type="object">Fiserv\Payments\Gateway\Http\Bluepay\Client\TransactionSale</argument>
+		</arguments>
+	</virtualType>
+
+	<virtualType name="FiservBluepaySettleCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+		<arguments>
+			<argument name="requestBuilder" xsi:type="object">FiservBluepaySettleRequest</argument>
+			<argument name="transferFactory" xsi:type="object">Fiserv\Payments\Gateway\Http\Bluepay\TransferFactory</argument>
+			<argument name="client" xsi:type="object">Fiserv\Payments\Gateway\Http\Bluepay\Client\TransactionCapture</argument>
+			<argument name="handler" xsi:type="object">FiservBluepaySettleHandler</argument>
+			<argument name="validator" xsi:type="object">Fiserv\Payments\Gateway\Validator\Bluepay\TransactionResponseValidator</argument>
+			<argument name="errorMessageMapper" xsi:type="object">Fiserv\Payments\Gateway\ErrorMapper\Bluepay\VirtualErrorMessageMapper</argument>
+		</arguments>
+	</virtualType>
+
+	<virtualType name="FiservBluepayVaultAuthorizeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+		<arguments>
+			<argument name="requestBuilder" xsi:type="object">FiservBluepayAuthorizeRequest</argument>
+			<argument name="transferFactory" xsi:type="object">Fiserv\Payments\Gateway\Http\Bluepay\TransferFactory</argument>
+			<argument name="client" xsi:type="object">Fiserv\Payments\Gateway\Http\Bluepay\Client\TransactionAuth</argument>
+			<argument name="handler" xsi:type="object">FiservBluepayAuthorizeHandler</argument>
+			<argument name="validator" xsi:type="object">Fiserv\Payments\Gateway\Validator\Bluepay\TransactionResponseValidator</argument>
+			<argument name="errorMessageMapper" xsi:type="object">Fiserv\Payments\Gateway\ErrorMapper\Bluepay\VirtualErrorMessageMapper</argument>
+		</arguments>
+	</virtualType>
+
+	<virtualType name="FiservBluepayVaultSaleCommand" type="FiservBluepayVaultAuthorizeCommand">
+		<arguments>
+			<argument name="client" xsi:type="object">Fiserv\Payments\Gateway\Http\Bluepay\Client\TransactionSale</argument>
+		</arguments>
+	</virtualType>
+
+	<virtualType name="FiservBluepayVoidCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+		<arguments>
+			<argument name="client" xsi:type="object">Fiserv\Payments\Gateway\Http\Bluepay\Client\TransactionVoid</argument>
+			<argument name="requestBuilder" xsi:type="object">FiservBluepayVoidRequestBuilder</argument>
+			<argument name="handler" xsi:type="object">Fiserv\Payments\Gateway\Response\Bluepay\VoidHandler</argument>
+			<argument name="validator" xsi:type="object">Fiserv\Payments\Gateway\Validator\Bluepay\TransactionResponseValidator</argument>
+			<argument name="transferFactory" xsi:type="object">Fiserv\Payments\Gateway\Http\Bluepay\TransferFactory</argument>
+		</arguments>
+	</virtualType>
+
+	<virtualType name="FiservBluepayRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+		<arguments>
+			<argument name="client" xsi:type="object">Fiserv\Payments\Gateway\Http\Bluepay\Client\TransactionRefund</argument>
+			<argument name="requestBuilder" xsi:type="object">FiservBluepayRefundRequestBuilder</argument>
+			<argument name="handler" xsi:type="object">Fiserv\Payments\Gateway\Response\Bluepay\RefundHandler</argument>
+			<argument name="validator" xsi:type="object">Fiserv\Payments\Gateway\Validator\Bluepay\TransactionResponseValidator</argument>
+			<argument name="transferFactory" xsi:type="object">Fiserv\Payments\Gateway\Http\Bluepay\TransferFactory</argument>
+		</arguments>
+	</virtualType>
+
+	<!-- Request Builders -->
+	<virtualType name="FiservBluepayAuthorizeRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+		<arguments>
+			<argument name="builders" xsi:type="array">
+				<item name="payment" xsi:type="string">Fiserv\Payments\Gateway\Request\Bluepay\PaymentDataBuilder</item>
+				<item name="customer" xsi:type="string">Fiserv\Payments\Gateway\Request\Bluepay\CustomerDataBuilder</item>
+				<item name="address" xsi:type="string">Fiserv\Payments\Gateway\Request\Bluepay\AddressDataBuilder</item>
+				<item name="store" xsi:type="string">Fiserv\Payments\Gateway\Request\Bluepay\StoreConfigBuilder</item>
+				<item name="merchant_account" xsi:type="string">Fiserv\Payments\Gateway\Request\Bluepay\MerchantAccountDataBuilder</item>
+				<item name="level_two" xsi:type="string">Fiserv\Payments\Gateway\Request\Bluepay\LevelTwoDataBuilder</item>
+				<item name="level_three" xsi:type="string">Fiserv\Payments\Gateway\Request\Bluepay\LevelThreeDataBuilder</item>
+				<item name="vault" xsi:type="string">Fiserv\Payments\Gateway\Request\Bluepay\VaultDataBuilder</item>
+			</argument>
+		</arguments>
+	</virtualType>
+
+	<virtualType name="FiservBluepaySettleRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+		<arguments>
+			<argument name="builders" xsi:type="array">
+				<item name="payment" xsi:type="string">Fiserv\Payments\Gateway\Request\Bluepay\CaptureDataBuilder</item>
+				<item name="customer" xsi:type="string">Fiserv\Payments\Gateway\Request\Bluepay\CustomerDataBuilder</item>
+				<item name="address" xsi:type="string">Fiserv\Payments\Gateway\Request\Bluepay\AddressDataBuilder</item>
+				<item name="store" xsi:type="string">Fiserv\Payments\Gateway\Request\Bluepay\StoreConfigBuilder</item>
+				<item name="merchant_account" xsi:type="string">Fiserv\Payments\Gateway\Request\Bluepay\MerchantAccountDataBuilder</item>
+				<item name="level_two" xsi:type="string">Fiserv\Payments\Gateway\Request\Bluepay\LevelTwoDataBuilder</item>
+				<item name="level_three" xsi:type="string">Fiserv\Payments\Gateway\Request\Bluepay\LevelThreeDataBuilder</item>
+			</argument>
+		</arguments>
+	</virtualType>
+
+	<!-- Response Handlers -->
+	<virtualType name="FiservBluepayAuthorizeHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
+		<arguments>
+			<argument name="handlers" xsi:type="array">
+				<item name="payment_details" xsi:type="string">Fiserv\Payments\Gateway\Response\Bluepay\PaymentDetailsHandler</item>
+				<item name="txn_id" xsi:type="string">Fiserv\Payments\Gateway\Response\Bluepay\TransactionIdHandler</item>
+				<item name="card_details" xsi:type="string">Fiserv\Payments\Gateway\Response\Bluepay\CardDetailsHandler</item>
+				<item name="ach_details" xsi:type="string">Fiserv\Payments\Gateway\Response\Bluepay\AchDetailsHandler</item>
+				<item name="vault_details" xsi:type="string">	Fiserv\Payments\Gateway\Response\Bluepay\VaultDetailsHandler</item>
+			</argument>
+		</arguments>
+	</virtualType>
+
+	<virtualType name="FiservBluepaySettleHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
+		<arguments>
+			<argument name="handlers" xsi:type="array">
+				<item name="payment_details" xsi:type="string">Fiserv\Payments\Gateway\Response\Bluepay\PaymentDetailsHandler</item>
+				<item name="settlement" xsi:type="string">Fiserv\Payments\Gateway\Response\Bluepay\SettleHandler</item>
+				<item name="card_details" xsi:type="string">Fiserv\Payments\Gateway\Response\Bluepay\CardDetailsHandler</item>
+				<item name="ach_details" xsi:type="string">Fiserv\Payments\Gateway\Response\Bluepay\AchDetailsHandler</item>
+			</argument>
+		</arguments>
+	</virtualType>
+
+	<virtualType name="FiservBluepayRefundRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+		<arguments>
+			<argument name="builders" xsi:type="array">
+				<item name="void" xsi:type="string">Fiserv\Payments\Gateway\Request\Bluepay\RefundDataBuilder</item>
+				<item name="store" xsi:type="string">Fiserv\Payments\Gateway\Request\Bluepay\StoreConfigBuilder</item>
+				<item name="merchant_account" xsi:type="string">Fiserv\Payments\Gateway\Request\Bluepay\MerchantAccountDataBuilder</item>
+			</argument>
+		</arguments>
+	</virtualType>
+
+	<virtualType name="FiservBluepayVoidRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+		<arguments>
+			<argument name="builders" xsi:type="array">
+				<item name="void" xsi:type="string">Fiserv\Payments\Gateway\Request\Bluepay\VoidDataBuilder</item>
+				<item name="store" xsi:type="string">Fiserv\Payments\Gateway\Request\Bluepay\StoreConfigBuilder</item>
+				<item name="merchant_account" xsi:type="string">Fiserv\Payments\Gateway\Request\Bluepay\MerchantAccountDataBuilder</item>
+			</argument>
+		</arguments>
+	</virtualType>
+
+	<!-- Error Mapping  -->
+	<virtualType name="Fiserv\Payments\Gateway\ErrorMapper\Bluepay\VirtualConfigReader" type="Magento\Payment\Gateway\ErrorMapper\VirtualConfigReader">
+		<arguments>
+			<argument name="fileName" xsi:type="string">bluepay-error-mapping.xml</argument>
+		</arguments>
+	</virtualType>
+	<virtualType name="Fiserv\Payments\Gateway\ErrorMapper\Bluepay\VirtualMappingData" type="Magento\Payment\Gateway\ErrorMapper\MappingData">
+		<arguments>
+			<argument name="reader" xsi:type="object">Fiserv\Payments\Gateway\ErrorMapper\Bluepay\VirtualConfigReader</argument>
+			<argument name="cacheId" xsi:type="string">bluepay_error_mapper</argument>
+		</arguments>
+	</virtualType>
+	<virtualType name="Fiserv\Payments\Gateway\ErrorMapper\Bluepay\VirtualErrorMessageMapper" type="Magento\Payment\Gateway\ErrorMapper\ErrorMessageMapper">
+		<arguments>
+			<argument name="messageMapping" xsi:type="object">Fiserv\Payments\Gateway\ErrorMapper\Bluepay\VirtualMappingData</argument>
+		</arguments>
+	</virtualType>
+
+	<!-- Config -->
+	<type name="Fiserv\Payments\Gateway\Config\Config">
+		<arguments>
+			<argument name="methodCode" xsi:type="const">Fiserv\Payments\Model\Config\ConfigProvider::CODE</argument>
+		</arguments>
+	</type>
+	<type name="Fiserv\Payments\Gateway\Config\Bluepay\Config">
+		<arguments>
+			<argument name="methodCode" xsi:type="const">Fiserv\Payments\Model\Config\Bluepay\ConfigProvider::CODE</argument>
+		</arguments>
+	</type>
+
+	<!-- Payment JS Session Data -->
+	<virtualType name="Fiserv\Payments\Model\Session\Storage" type="Magento\Framework\Session\Storage">
+		<arguments>
+			<argument name="namespace" xsi:type="string">fiservpayments</argument>
+		</arguments>
+	</virtualType>
+	<type name="Fiserv\Payments\Model\Session">
+		<arguments>
+			<argument name="storage" xsi:type="object">Fiserv\Payments\Model\Session\Storage</argument>
+		</arguments>
+	</type>
+</config>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+		<link rel="stylesheet" href="/static/shpf/m2ach/css/print.css">
+		<link rel="stylesheet" href="/static/shpf/m2ach/css/m2ach.css">
+	</head>
+	<body>
+		<div class="wrapper">
+			<div class="container">
+				<form name="mainform" id="m2-ach-mainform" action="https://secure.bluepay.com/interfaces/bp10emu" method="POST" data-transaction-form="" novalidate="novalidate">
+					<input type="hidden" name="MERCHANT" id="MERCHANT" value="undefined">
+					<input type="hidden" name="TRANSACTION_TYPE" value="AUTH">
+					<input type="hidden" name="PAYMENT_TYPE" id="PAYMENT_TYPE" value="ACH">
+					<input type="hidden" name="TAMPER_PROOF_SEAL" id="TAMPER_PROOF_SEAL" value="">
+					<input type="hidden" name="TPS_DEF" id="TPS_DEF" value="">
+					<input type="hidden" name="TPS_HASH_TYPE" id="TPS_HASH_TYPE" value="HMAC_SHA512">
+					<input type="hidden" name="APPROVED_URL" id="APPROVED_URL" value="">
+					<input type="hidden" name="DECLINED_URL" id="DECLINED_URL" value="">
+					<input type="hidden" name="MISSING_URL" id="MISSING_URL" value="">
+					<input type="hidden" name="MODE" id="MODE" value="TEST">
+					<input type="hidden" name="RRNO" id="RRNO" value="">
+					<input type="hidden" name="RESPONSEVERSION" id="RESPONSEVERSION" value="3">	
+					<input type="hidden" name="MERCHDATA_SHPF-FORM-ID" value="m2ach">
+					<input type="hidden" name="AMOUNT" id="AMOUNT" value="0.00">
+					<input type="hidden" name="NAME1" id="NAME1" value="">
+					<input type="hidden" name="NAME2" id="NAME2" value="">
+					<input type="hidden" name="COMPANY_NAME" id="COMPANY_NAME" value="">
+					<input type="hidden" name="ADDR1" id="ADDR1" value="">
+					<input type="hidden" name="ADDR2" id="ADDR2" value="">
+					<input type="hidden" name="CITY" id="CITY" value="">
+					<input type="hidden" name="STATE" id="STATE" value="">
+					<input type="hidden" name="ZIPCODE" id="ZIPCODE" value="" size="7">
+					<input type="hidden" name="USER_AGENT" id="USER_AGENT" value="BluePay Magento 2 Plugin ACH SHPF">
+
+					<fieldset>
+						<div id="payment_info_container">
+							<div class="field select required">
+								<label class="label" for="ACH_ACCOUNT_TYPE">Account Type</label>
+								<div class="control">
+									<select name="ACH_ACCOUNT_TYPE" id="ACH_ACCOUNT_TYPE" class="select">
+										<option value="C" selected="">Checking</option>
+										<option value="S">Savings</option>
+									</select>
+								</div>
+							</div>
+							<div class="field number required">
+								<label class="label" for="ACH_ROUTING">Routing Number</label>
+								<div class="control">
+									<input type="text" name="ACH_ROUTING" id="ACH_ROUTING">
+								</div>
+							</div>
+							<div class="field number required">
+								<label class="label" for="ACH_ACCOUNT">Account Number</label>
+								<div class="control">
+									<input type="text" name="ACH_ACCOUNT" id="ACH_ACCOUNT">
+								</div>
+							</div>
+						</div>
+					</fieldset>
+				</form>
+			</div>
+		</div>
+<script>
+	$(document).ready(function() {
+		var $_GET = {};
+		var path = [location.protocol, '//', location.host, location.pathname].join('');
+		document.location.search.replace(/\??(?:([^=]+)=([^&]*)&?)/g, function () {
+			function decode(s) {
+				return decodeURIComponent(s.split("+").join(" "));
+			}
+			$_GET[decode(arguments[1])] = decode(arguments[2]);
+		});
+
+		// send back to parent
+		if (typeof $_GET["MESSAGE"] !== "undefined" && $_GET["MESSAGE"]) {
+			parent.postMessage($_GET, "*");
+		}
+
+		document.getElementById("MERCHANT").value = (typeof $_GET["SHPF_ACCOUNT_ID"] !== "undefined") ? $_GET["SHPF_ACCOUNT_ID"] : $_GET["MERCHANT"];
+		document.getElementById("TAMPER_PROOF_SEAL").value = (typeof $_GET["TAMPER_PROOF_SEAL"] !== "undefined") ? $_GET["TAMPER_PROOF_SEAL"] : '';
+		document.getElementById("TPS_DEF").value = (typeof $_GET["TPS_DEF"] !== "undefined") ? $_GET["TPS_DEF"] : '';
+		document.getElementById("TPS_HASH_TYPE").value = (typeof $_GET["TPS_HASH_TYPE"] !== "undefined") ? $_GET["TPS_HASH_TYPE"] : '';
+		document.getElementById("MODE").value = (typeof $_GET["MODE"] !== "undefined") ? $_GET["MODE"] : "TEST";
+		document.getElementById("APPROVED_URL").value = (typeof $_GET["APPROVED_URL"] !== "undefined") ? $_GET["APPROVED_URL"] : '';
+		document.getElementById("DECLINED_URL").value = (typeof $_GET["DECLINED_URL"] !== "undefined") ? $_GET["DECLINED_URL"] : '';
+		document.getElementById("MISSING_URL").value = (typeof $_GET["MISSING_URL"] !== "undefined") ? $_GET["MISSING_URL"] : '';
+		document.getElementById("NAME1").value = (typeof $_GET["NAME1"] !== "undefined") ? $_GET["NAME1"] : '';
+		document.getElementById("NAME2").value = (typeof $_GET["NAME2"] !== "undefined") ? $_GET["NAME2"] : '';
+		document.getElementById("COMPANY_NAME").value = (typeof $_GET["COMPANY_NAME"] !== "undefined") ? $_GET["COMPANY_NAME"] : '';
+		document.getElementById("ADDR1").value = (typeof $_GET["ADDR1"] !== "undefined") ? $_GET["ADDR1"] : '';
+		document.getElementById("ADDR2").value = (typeof $_GET["ADDR2"] !== "undefined") ? $_GET["ADDR2"] : '';
+		document.getElementById("CITY").value = (typeof $_GET["CITY"] !== "undefined") ? $_GET["CITY"] : '';
+		document.getElementById("STATE").value = (typeof $_GET["STATE"] !== "undefined") ? $_GET["STATE"] : '';
+		document.getElementById("ZIPCODE").value = (typeof $_GET["ZIPCODE"] !== "undefined") ? $_GET["ZIPCODE"] : '';
+		document.getElementById("RRNO").value = (typeof $_GET["RRNO"] !== "undefined") ? $_GET["RRNO"] : '';
+		document.getElementById("ACH_ACCOUNT_TYPE").value = (typeof $_GET["ACH_ACCOUNT_TYPE"] !== "undefined") ? $_GET["ACH_ACCOUNT_TYPE"] : 'C';
+		document.getElementById("ACH_ROUTING").value = (typeof $_GET["ACH_ROUTING"] !== "undefined") ? $_GET["ACH_ROUTING"] : '';
+		document.getElementById("ACH_ACCOUNT").value = (typeof $_GET["ACH_ACCOUNT"] !== "undefined") ? $_GET["ACH_ACCOUNT"] : '';
+		document.getElementById("RESPONSEVERSION").value = (typeof $_GET["RESPONSEVERSION"] !== "undefined") ? $_GET["RESPONSEVERSION"] : '3';
+
+		window.addEventListener("message", receiveMessage, false);
+		function receiveMessage(event) {
+			if (event.data.originCode == "fiserv_bluepay_magento" && event.data.action == "submit") {
+				$("#m2-ach-mainform").submit();
+			}
+		}
+	});
+</script>
+</body></html>

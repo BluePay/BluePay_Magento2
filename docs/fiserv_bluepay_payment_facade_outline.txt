@@ -1,0 +1,72 @@
+Fiserv BluepPay Payment Gateway Facade Diagram
+* = class to be created
+
+FiservBluepayFacade : Magento\Payment\Model\Method\Adapter
+	code: "fiserv_bluepay" (constant in ConfigProvider)
+	formBlockType: Block\Form
+	infoBlockType: Block\Info
+	valueHandlerPool: FiservBluepayValueHandlerPool
+	validatorPool: FiservBluepayValidatorPool
+	commandPool: FiservBluepayCommandPool
+
+
+	FiservBluepayValueHandlerPool : Magento\Payment\Gateway\Config\ValueHandlerPool
+		default: FiservBluepayValueHandler
+		can_void: CanVoidHandler
+
+		FiservBluepayValueHandler : Magento\Payment\Gateway\Config\ConfigValueHandler
+			config: Fiserv\Payments\Gateway\Config\Bluepay\Config
+
+
+	FiservBluepayValidatorPool : Magento\Payment\Gateway\Validator\ValidatorPool
+		country: FiservBluepayCountryValidator
+
+		FiservBluepayCountryValidator : Magento\Payment\Gateway\Validator\CountryValidator
+			config: Fiserv\Payments\Gateway\Config\Bluepay\Config
+
+		FiservBluepayCurrencyValidator : Fiserv\Payments\Gateway\Validator\CurrencyValidator
+			config: Fiserv\Payments\Gateway\Config\Bluepay\Config
+
+
+	FiservBluepayCommandPool : Magento\Payment\Gateway\Command\CommandPool
+		auth: FiservBluepayAuthorizeCommand
+		capture: FiservBluepayCaptureCommand
+		sale: FiservBluepaySaleCommand
+		refund: FiservBluepayRefundCommand
+		void: FiservBluepayVoidCommand
+
+
+		FiservBluepayAuthorizeCommand : Magento\Payment\Gateway\Command\GatewayCommand
+			requestBuilder: FiservBluepayAuthorizeRequest
+			transferFactory: Fiserv\Payments\Gateway\Http\Bluepay\TransferFactory
+			client: Fiserv\Payments\Gateway\Http\Bluepay\Client\TransactionAuth
+			handler: FiservBluepayAuthorizeHandler
+			validator: Fiserv\Payments\Gateway\Validator\Bluepay\TransactionResponseValidator
+			errorMessageMapper: Fiserv\Payments\Gateway\ErrorMapper\Bluepay\VirtualErrorMessageMapper
+
+			FiservBluepayAuthorizeRequest : Magento\Payment\Gateway\Request\BuilderComposite
+				builders:
+					payment: Fiserv\Payments\Gateway\Request\Bluepay\PaymentDataBuilder
+					customer: Fiserv\Payments\Gateway\Request\Bluepay\CustomerDataBuilder
+					address: Fiserv\Payments\Gateway\Request\Bluepay\AddressDataBuilder
+	                store: Fiserv\Payments\Gateway\Request\Bluepay\StoreConfigBuilder
+					merchant_account: Fiserv\Payments\Gateway\Request\Bluepay\MerchantAccountDataBuilder
+					level2: Fiserv\Payments\Gateway\Request\Bluepay\LevelTwoDataBuilder
+					level3: Fiserv\Payments\Gateway\Request\Bluepay\LevelThreeDataBuilder
+
+			FiservBluepayAuthorizeHandler : Magento\Payment\Gateway\Response\HandlerChain
+				handlers:
+					payment_details: Fiserv\Payments\Gateway\Response\Bluepay\PaymentDetailsHandler
+					txn_id: Fiserv\Payments\Gateway\Response\Bluepay\TransactionIdHandler
+					card_details: Fiserv\Payments\Gateway\Response\Bluepay\CardDetailsHandler
+					ach_details: Fiserv\Payments\Gateway\Response\Bluepay\AchDetailsHandler
+
+			VirtualErrorMessageMapper : Magento\Payment\Gateway\ErrorMapper\ErrorMessageMapper
+				messageMapping: Fiserv\Payments\Gateway\ErrorMapper\Bluepay\VirtualMappingData
+
+				VirtualMappingData : Magento\Payment\Gateway\ErrorMapper\MappingData
+					reader: Fiserv\Payments\Gateway\ErrorMapper\Bluepay\VirtualConfigReader
+					cacheId: fiserv_bluepay_error_mapper
+
+					VirtualConfigReader : Magento\Payment\Gateway\ErrorMapper\VirtualConfigReader
+						fileName: bluepay_error_mapping.xml

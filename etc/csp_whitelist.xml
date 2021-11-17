@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<csp_whitelist xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Csp:etc/csp_whitelist.xsd">
+    <policies>
+        <policy id="script-src">
+            <values>
+                <value id="pjs-lib-base" type="host">https://lib.paymentjs.firstdata.com</value>
+                <value id="pjs-base" type="host">https://paymentjs.firstdata.com</value>
+                <value id="firstdata" type="host">https://firstdata.com</value>
+                <value id="shpf-base" type="host">https://secure.bluepay.com</value>
+                <value id="bluepay" type="host">https://bluepay.com</value>
+            </values>
+        </policy>
+        <policy id="frame-src">
+            <values>
+                <value id="pjs-lib-base" type="host">https://lib.paymentjs.firstdata.com</value>
+                <value id="pjs-base" type="host">https://paymentjs.firstdata.com</value>
+                <value id="firstdata" type="host">https://firstdata.com</value>
+                <value id="shpf-base" type="host">https://secure.bluepay.com</value>
+                <value id="bluepay" type="host">https://bluepay.com</value>
+            </values>
+        </policy>
+    </policies>
+</csp_whitelist>

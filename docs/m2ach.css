@@ -1,0 +1,47 @@
+* {
+	margin: 0;
+	padding: 0;
+}
+
+label.label {
+	color: #333;
+	font-family: 'Open Sans','Helvetica Neue',Helvetica,Arial,sans-serif;
+	font-size: 14px;
+	margin-bottom: 8px;
+}
+
+input, select {
+	margin-top: 8px;
+	border: 1px solid #ccc;
+	border-radius: 1px;	
+	font-size: 14px;
+	line-height: 1.42857143;
+	padding: 0 9px;
+	vertical-align: baseline;
+}
+
+input {
+	height: 32px;
+	width: 180px;
+}
+
+select {
+	height: 34px;
+	width: 200px;
+}
+
+fieldset {
+	border: none;
+}
+
+form.mainform {
+	margin-top: 20px;
+}
+
+div.field {
+	margin-bottom: 20px;
+}
+
+div.field:last-child {
+	margin-bottom: 0;
+}

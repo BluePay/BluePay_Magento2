@@ -1,0 +1,121 @@
+
+<div class="payment-method" data-bind="css: {'_active': (getCode() == isChecked())}">
+	<div class="payment-method-title field choice">
+		<input type="radio"
+			   name="payment[method]"
+			   class="radio"
+			   data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
+		<label data-bind="attr: {'for': getCode()}" class="label"><span data-bind="text: getTitle()"></span></label>
+	</div>
+	<div class="payment-method-content">
+		<!-- ko foreach: getRegion('messages') -->
+		<!-- ko template: getTemplate() --><!-- /ko -->
+		<!--/ko-->
+		<div class="payment-method-billing-address">
+			<!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
+			<!-- ko template: getTemplate() --><!-- /ko -->
+			<!--/ko-->
+		</div>
+		<div data-bind="
+			attr: {'id': getCode() + '-payment-type-container'},
+			visible: multiplePaymentTypes(),
+			afterRender: watchPaymentMethods() 		
+			"
+			style="margin-bottom: 25px;">
+			<div style="margin-bottom: 8px;">
+				<label>Payment Type</label>
+			</div>
+			<select data-bind="
+				event: {'change': changePaymentType},
+				attr: {'id': getCode() + '-payment-type-selector'},
+				enable: multiplePaymentTypes()
+				"
+				style="max-width: 220px;">
+				<option value="payment-card">Payment Card</option>
+				<option value="ach">E-Check</option>	
+			</select>
+		</div>
+		<!-- This iframe will be removed eventually with the release of payment.js ACH functionality -->
+		<!-- ko if: canAch() -->
+			<div data-bind="
+				attr: {'id': getCode() + '-ach-iframe-container'},
+				visible: isAchActive()">
+				<iframe data-bind="
+					attr: {'id': getCode() + '-ach-iframe'},
+					afterRender: initAchIframe()
+				"
+				src="about:blank"
+				style="
+					border: 0;
+					width: 100%;
+					height: 240px;
+					overflow: hidden;
+					">
+				</iframe>	
+			</div>
+		<!--/ko-->
+		<!-- ko if: canPaymentCard() -->
+			<div data-bind="
+				attr: {'id': getCode() + '-card-form-container'},
+				visible: isPaymentCardActive()">
+				<form class="form" data-bind="
+					attr: {'id': getCode() + '-form'},
+					enable: canPaymentCard(),
+					afterRender: createCardForm()
+					">
+					<div data-bind="style: getPjsFieldContainerStyles()" class="pjsFieldContainer">
+						<label for="cc-name" class="control-label">Cardholder Name</label>
+						<div data-bind="style: getPjsFieldStyles()" class="pjsField disabled" id="cc-name" data-cc-name></div>
+					</div>
+					<div data-bind="style: getPjsFieldContainerStyles()" class="pjsFieldContainer">
+						<label for="cc-card" class="control-label">Card Number  </label>
+						<div data-bind="style: getPjsFieldStyles()" class="pjsField disabled empty" id="cc-card" data-cc-card></div>
+					</div>
+					<div data-bind="style: getPjsFlexRowStyle()" class="pjsFlexRow">
+						<div data-bind="style: getPjsFlexFieldContainerStyles()" class="pjsFlexFieldContainer">
+							<label for="cc-exp" class="control-label">Expiration</label>
+							<div data-bind="style: getPjsFlexFieldStyle()" class="pjsField disabled empty" id="cc-exp" data-cc-exp></div>
+						</div>
+						<div data-bind="style: getPjsFlexFieldContainerStyles()" class="pjsFlexFieldContainer">
+							<label for="cc-cvv" class="control-label">CVV</label>
+							<div data-bind="style: getPjsFlexFieldStyle()" class="pjsField disabled empty" id="cc-cvv" data-cc-cvv></div>
+						</div>
+					</div>
+				</form>				
+			</div>
+		<!--/ko-->
+        <!-- ko if: (isVaultEnabled())-->
+	        <div class="field choice">
+	            <input type="checkbox"
+	                name="vault[is_enabled]"
+	                class="checkbox"
+	                data-bind="attr: {'id': getCode() + '_enable_vault'}, checked: vaultEnabler.isActivePaymentTokenEnabler"/>
+	            <label class="label" data-bind="attr: {'for': getCode() + '_enable_vault'}">
+	                <span><!-- ko i18n: 'Save for later use.'--><!-- /ko --></span>
+	            </label>
+	        </div>
+        <!-- /ko -->
+
+		<div class="checkout-agreements-block">
+			<!-- ko foreach: $parent.getRegion('before-place-order') -->
+			<!-- ko template: getTemplate() --><!-- /ko -->
+			<!--/ko-->
+		</div>
+		<div class="actions-toolbar">
+			<div class="primary">
+				<button class="action primary checkout"
+						type="submit"
+						data-bind="
+						click: placeOrderClick,
+						attr: {title: $t('Place Order')},
+						css: {disabled: !isPlaceOrderActionAllowed()},
+						enable: (getCode() == isChecked()),
+						afterRender: handlePaymentType
+						"
+						disabled>
+					<span data-bind="text: $t('Place Order')"></span>
+				</button>
+			</div>
+		</div>
+	</div>
+</div>

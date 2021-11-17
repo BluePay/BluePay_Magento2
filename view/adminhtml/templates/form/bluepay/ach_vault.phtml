@@ -1,0 +1,28 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+use Magento\Vault\Model\Ui\TokenUiComponentProviderInterface;
+
+/** @var \Magento\Framework\View\Element\Template $block */
+$details = $block->getData(TokenUiComponentProviderInterface::COMPONENT_DETAILS);
+$accountString = ucfirst($details['account_type'] . ": " . $details['routing_number']  . ":xxxx" . $details['ach_bin']);
+$id = $block->escapeHtml($block->getData('id'));
+$code = $block->escapeHtml($block->getData('code'));
+?>
+<div data-mage-init='{
+        "Fiserv_Payments/js/bluepay/vault": {
+            "container": "payment_<?= /* @noEscape */ $id ?>",
+            "publicHash": "<?= $block->escapeHtml($block->getData(TokenUiComponentProviderInterface::COMPONENT_PUBLIC_HASH)) ?>",
+            "code": "<?= $code ?>",
+            "tokenUrl": "<?= $block->escapeUrl($block->getData('tokenUrl')) ?>"
+        }
+    }' id="payment_<?= /* @noEscape */ $id ?>" class="admin__field">
+    <div class="admin__field-control control">
+        <input type="hidden" id="<?= /* @noEscape */ $code ?>_payment_type" name="payment[payment_type]" value="ACH"/>  
+	<input type="radio" id="token_switcher_<?= /* @noEscape */ $id ?>" name="payment[token_switcher]"/>
+        <span><?= $block->escapeHtml($accountString) ?></span>
+    </div>
+</div>

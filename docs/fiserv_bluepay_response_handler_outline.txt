@@ -1,0 +1,23 @@
+Fiserv BluePay Response Handler Outline
+---
+
+Payment Details
+---------------
+setInvoiceId - INVOICE_ID
+setBankName - BANK_NAME
+setMessage - MESSAGE
+setResult - Result
+setAvs - AVS
+setCvv2 - CVV2
+setAuthCode - AUTH_CODE
+
+Transaction ID
+--------------
+setRrno - RRNO
+setToken - RRNO
+
+Card Details
+------------
+setCcExpires - CARD_EXPIRES
+setCardType - CARD_TYPE
+setPaymentAccountMask - PAYMENT_ACCOUNT

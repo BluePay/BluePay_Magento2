@@ -1,0 +1,14 @@
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+
+        <referenceContainer name="content">
+            <block class="Fiserv\Payments\Block\Customer\AchTokens" name="vault.ach.list" cacheable="false" template="Fiserv_Payments::ach_list.phtml" />
+            <referenceBlock name="vault.cards.list">
+                <block class="Fiserv\Payments\Block\Customer\Bluepay\VaultCardRenderer" name="fiserv_bluepay.card.renderer" template="Magento_Vault::customer_account/credit_card.phtml"/>
+            </referenceBlock>
+            <referenceBlock name="vault.ach.list">
+                <block class="Fiserv\Payments\Block\Customer\Bluepay\VaultAchRenderer" name="fiserv_bluepay.ach.renderer" template="Fiserv_Payments::vault_ach.phtml"/>
+            </referenceBlock>
+        </referenceContainer>
+    </body>
+</page>

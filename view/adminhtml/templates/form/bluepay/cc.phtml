@@ -1,0 +1,88 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/** @var Fiserv\Payments\Block\Bluepay\Form $block */
+
+$code = $block->escapeHtml($block->getMethodCode());
+$ccType = $block->getInfoData('cc_type');
+$paymentTypes = $block->getPaymentTypes();
+?>
+<head>
+	<style>
+		.pjsFieldContainer {
+			margin-bottom: 25px;
+		}
+		.pjsField {					
+			height: 32px;
+			margin-top: 8px;
+			border: 1px solid #ccc;
+			width: 200px;
+			padding: 0 9px;
+		}
+	</style>
+</head>
+<fieldset class="admin__fieldset payment-method" id="payment_form_<?= /* @noEscape */ $code ?>"
+          style="display:none">
+	<?php if(count($paymentTypes) > 1): ?> 
+		<div 
+			id="<?= /* @noEscape */ $code ?>-payment-type-container" 
+			style="margin-bottom: 25px;">
+			<div style="margin-bottom: 8px;">
+				<label>Payment Type</label>
+			</div>
+			<select 
+				id="<?= /* @noEscape */ $code ?>-payment-type-selector"
+				style="max-width: 220px;">
+				<?php foreach ($paymentTypes as $key => $value): ?>
+					<option value="<?= $key ?>"><?= $value ?></option>
+				<?php endforeach; ?>
+			</select>
+		</div>
+	<?php endif; ?>
+
+	<?php if($block->canAch()): ?> 
+		<div id="<?= $code ?>-ach-iframe-container">
+			<iframe 
+				id="<?= $code ?>-ach-iframe"
+				src="about:blank"
+				style="
+					border: 0;
+					width: 100%;
+					height: 240px;
+					overflow: hidden;">
+			</iframe>	
+		</div>
+	<?php endif; ?>
+	<?php if($block->canPaymentCard()): ?> 
+		<div id="<?= $code ?>-card-form-container">
+			<form id="<?= $code ?>-pjs-form">
+				<div class="pjsFieldContainer">
+					<label for="cc-name" class="control-label">Cardholder Name</label>
+					<div class="pjsField disabled" id="cc-name" data-cc-name></div>
+				</div>
+				<div class="pjsFieldContainer">
+					<label for="cc-card" class="control-label">Card Number  </label>
+					<div class="pjsField disabled empty" id="cc-card" data-cc-card></div>
+				</div>
+				<div class="pjsFieldContainer">
+					<label for="cc-exp" class="control-label">Expiration Date</label>
+					<div class="pjsField disabled empty" id="cc-exp" data-cc-exp></div>
+				</div>
+				<div class="pjsFieldContainer">
+					<label for="cc-cvv" class="control-label">CVV</label>
+					<div class="pjsField disabled empty" id="cc-cvv" data-cc-cvv></div>
+				</div>
+			</form>				
+		</div>
+	<?php endif; ?>
+
+	<input type="hidden" id="<?= /* @noEscape */ $code ?>_payment_token"
+		name="payment[payment_token]"/>
+	<input type="hidden" id="<?= /* @noEscape */ $code ?>_payment_type"
+		name="payment[payment_type]"/>
+
+	<input type="submit" name="Submit" style="display: none;">
+</fieldset>

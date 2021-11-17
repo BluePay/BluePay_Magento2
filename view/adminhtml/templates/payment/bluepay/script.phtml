@@ -1,0 +1,31 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/** @var Fiserv\Payments\Block\Bluepay\Payment $block */
+?>
+<script>
+	//<![CDATA[
+	require(
+		[
+			'Fiserv_Payments/js/bluepay-shpf-utils',
+			'Fiserv_Payments/js/adapter',
+            'Fiserv_Payments/js/bluepay/gatewayAdapter',
+			'jquery',
+			'domReady!'
+		], function(
+			shpfUtils, 
+			pjsAdapter, 
+			Bluepay,
+			$
+		) {
+			let gatewayConfig = <?= /* @noEscape */ $block->getGatewayConfig() ?>;
+			let pjsConfig = <?= /* @noEscape */ $block->getPjsConfig() ?>;
+			
+			let payment = new Bluepay(gatewayConfig, pjsConfig);
+			payment.initPayment(gatewayConfig, pjsConfig);
+		});
+	//]]>
+</script>
