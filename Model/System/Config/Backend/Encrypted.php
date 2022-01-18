@@ -44,16 +44,16 @@ class Encrypted extends \Magento\Config\Model\Config\Backend\Encrypted
 	}
 
 	private function validatePjsKey($value) {
-		if (strlen($value) != 32) {
+		/*if (strlen($value) != 32) {
 			$this->_dataSaveAllowed = false;
 			throw new \Magento\Framework\Exception\LocalizedException(__("Error. PaymentJS Key must be 32 digits. Your settings have not been saved."));
-		}
+		}*/
 	}
 
 	private function validatePjsSecret($value) {
-		if (strlen($value) != 16) {
+		/*if (strlen($value) != 16) {
 			$this->_dataSaveAllowed = false;
 			throw new \Magento\Framework\Exception\LocalizedException(__("Error. PaymentJS Secret must be 32 digits. Your settings have not been saved."));
-		}
+		}*/
 	}
 }
